@@ -65,10 +65,8 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   const anchorRect = rects && (forward ? last(rects) : rects[0])
   if (!anchorRect) return null
 
-  const handleTranslateClick = async (highlightedText, setTranslation) => {
+  const handleTranslateClick = async (highlightedText) => {
     const targetLanguage = 'en'
-
-    // Constructing the URL with query parameters
     const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(
       highlightedText,
     )}&target=${encodeURIComponent(targetLanguage)}`
@@ -77,13 +75,12 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
       console.time('FetchTime')
       const response = await fetch(apiUrl)
       console.timeEnd('FetchTime')
-      console.time('ParseTime')
       const data = await response.json()
-      console.timeEnd('ParseTime')
       console.log('got translation: ', decode(data.output))
-      setTranslation(decode(data.output)) // Assuming the response has an 'output' field
+      return decode(data.output) // Return the translation
     } catch (error) {
       console.error('Translation error:', error)
+      throw error // Propagate the error
     }
   }
 
@@ -169,14 +166,35 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
 
   const [translation, setTranslation] = useState('')
   const [showTranslation, setShowTranslation] = useState(true)
+  const [isTranslating, setIsTranslating] = useState(false)
+  const isTranslatingRef = useRef(false)
+  const pendingTranslationRef = useRef(null)
 
-
-    // Call the translate function when text is available
-    useEffect(() => {
-      if (text) {
-        handleTranslateClick(text, setTranslation);
+  const processTranslation = async (textToTranslate) => {
+    isTranslatingRef.current = true
+    try {
+      const translatedText = await handleTranslateClick(textToTranslate)
+      setTranslation(translatedText)
+    } catch (error) {
+      console.error('Translation error:', error)
+    } finally {
+      isTranslatingRef.current = false
+      if (pendingTranslationRef.current) {
+        processTranslation(pendingTranslationRef.current)
+        pendingTranslationRef.current = null
       }
-    }, [text, handleTranslateClick]);
+    }
+  }
+
+  useEffect(() => {
+    if (text) {
+      if (isTranslatingRef.current) {
+        pendingTranslationRef.current = text
+      } else {
+        processTranslation(text)
+      }
+    }
+  }, [text, handleTranslateClick])
 
   return (
     <FocusLock disabled={mobile}>
@@ -218,147 +236,145 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
           }
         }}
       >
-          {showTranslation ? (
-        <div className="text-on-surface-variant -mx- mb-3 flex gap-1">
-        <div
-              className="notranslate mb-3 flex cursor-pointer items-center justify-center gap-1"
+        {showTranslation ? (
+            <div
+              className="notranslate flex cursor-pointer items-center justify-center"
               onClick={() => setShowTranslation(false)}
             >
-              {translation}
-            </div>
-            </div>
-          ) : annotate ? (
-            <div className="mb-3">
-              <TextField
-                mRef={ref}
-                as="textarea"
-                name="notes"
-                defaultValue={annotation?.notes}
-                hideLabel
-                className="h-40 w-72"
-                autoFocus
-              />
-            </div>
-          ) : (
-            <div className="text-on-surface-variant -mx- mb-3 flex gap-1">
+              {translation || <div className="spinner"></div>}
+          </div>
+        ) : annotate ? (
+          <div className="mb-3">
+            <TextField
+              mRef={ref}
+              as="textarea"
+              name="notes"
+              defaultValue={annotation?.notes}
+              hideLabel
+              className="h-40 w-72"
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div className="text-on-surface-variant -mx- mb-3 flex gap-1">
+            <IconButton
+              title={t('copy')}
+              Icon={MdCopyAll}
+              size={ICON_SIZE}
+              onClick={() => {
+                hide()
+                copy(text)
+              }}
+            />
+            <IconButton
+              title={t('search_in_book')}
+              Icon={MdSearch}
+              size={ICON_SIZE}
+              onClick={() => {
+                hide()
+                setAction('search')
+                tab.setKeyword(text)
+              }}
+            />
+            <IconButton
+              title={t('annotate')}
+              Icon={MdOutlineEdit}
+              size={ICON_SIZE}
+              onClick={() => {
+                setAnnotate(true)
+              }}
+            />
+            {tab.isDefined(text) ? (
               <IconButton
-                title={t('copy')}
-                Icon={MdCopyAll}
+                title={t('undefine')}
+                Icon={MdOutlineIndeterminateCheckBox}
                 size={ICON_SIZE}
                 onClick={() => {
                   hide()
-                  copy(text)
+                  tab.undefine(text)
                 }}
               />
+            ) : (
               <IconButton
-                title={t('search_in_book')}
-                Icon={MdSearch}
+                title={t('define')}
+                Icon={MdOutlineAddBox}
                 size={ICON_SIZE}
                 onClick={() => {
                   hide()
-                  setAction('search')
-                  tab.setKeyword(text)
+                  tab.define([text])
                 }}
               />
-              <IconButton
-                title={t('annotate')}
-                Icon={MdOutlineEdit}
-                size={ICON_SIZE}
-                onClick={() => {
-                  setAnnotate(true)
-                }}
-              />
-              {tab.isDefined(text) ? (
-                <IconButton
-                  title={t('undefine')}
-                  Icon={MdOutlineIndeterminateCheckBox}
-                  size={ICON_SIZE}
-                  onClick={() => {
-                    hide()
-                    tab.undefine(text)
-                  }}
-                />
-              ) : (
-                <IconButton
-                  title={t('define')}
-                  Icon={MdOutlineAddBox}
-                  size={ICON_SIZE}
-                  onClick={() => {
-                    hide()
-                    tab.define([text])
-                  }}
-                />
-              )}
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {!showTranslation && (
-            <div className="space-y-2">
-              {keys(typeMap).map((type) => (
-                <div key={type} className="flex gap-2">
-                  {keys(colorMap).map((color) => (
-                    <div
-                      key={color}
-                      style={{
-                        [typeMap[type].style]: colorMap[color],
-                        width: ANNOTATION_SIZE,
-                        height: ANNOTATION_SIZE,
-                        fontSize: scale(16, 20),
-                      }}
-                      className={clsx(
-                        'typescale-body-large text-on-surface-variant flex cursor-pointer items-center justify-center',
-                        typeMap[type].class,
-                      )}
-                      onClick={() => {
-                        tab.putAnnotation(
-                          type,
-                          cfi,
-                          color,
-                          text,
-                          ref.current?.value,
-                        )
-                        hide()
-                      }}
-                    >
-                      A
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-          {!showTranslation && annotate && (
-            <div className="mt-3 flex">
-              {annotation && (
-                <Button
-                  compact
-                  variant="secondary"
-                  onClick={() => {
-                    tab.removeAnnotation(cfi)
-                    hide()
-                  }}
-                >
-                  {t('delete')}
-                </Button>
-              )}
+        {!showTranslation && (
+          <div className="space-y-2">
+            {keys(typeMap).map((type) => (
+              <div key={type} className="flex gap-2">
+                {keys(colorMap).map((color) => (
+                  <div
+                    key={color}
+                    style={{
+                      [typeMap[type].style]: colorMap[color],
+                      width: ANNOTATION_SIZE,
+                      height: ANNOTATION_SIZE,
+                      fontSize: scale(16, 20),
+                    }}
+                    className={clsx(
+                      'typescale-body-large text-on-surface-variant flex cursor-pointer items-center justify-center',
+                      typeMap[type].class,
+                    )}
+                    onClick={() => {
+                      tab.putAnnotation(
+                        type,
+                        cfi,
+                        color,
+                        text,
+                        ref.current?.value,
+                      )
+                      hide()
+                    }}
+                  >
+                    A
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+        {!showTranslation && annotate && (
+          <div className="mt-3 flex">
+            {annotation && (
               <Button
-                className="ml-auto"
                 compact
+                variant="secondary"
                 onClick={() => {
-                  tab.putAnnotation(
-                    annotation?.type ?? 'highlight',
-                    cfi,
-                    annotation?.color ?? 'yellow',
-                    text,
-                    ref.current?.value,
-                  )
+                  tab.removeAnnotation(cfi)
                   hide()
                 }}
               >
-                {t(annotation ? 'update' : 'create')}
+                {t('delete')}
               </Button>
-            </div>
-          )}
+            )}
+            <Button
+              className="ml-auto"
+              compact
+              onClick={() => {
+                tab.putAnnotation(
+                  annotation?.type ?? 'highlight',
+                  cfi,
+                  annotation?.color ?? 'yellow',
+                  text,
+                  ref.current?.value,
+                )
+                hide()
+              }}
+            >
+              {t(annotation ? 'update' : 'create')}
+            </Button>
+          </div>
+        )}
       </div>
     </FocusLock>
   )
