@@ -1,6 +1,6 @@
 import { Overlay } from '@literal-ui/core'
 import clsx from 'clsx'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState, useEffect } from 'react'
 import FocusLock from 'react-focus-lock'
 import {
   MdCopyAll,
@@ -8,7 +8,6 @@ import {
   MdOutlineEdit,
   MdOutlineIndeterminateCheckBox,
   MdSearch,
-  MdSportsKabaddi,
 } from 'react-icons/md'
 import { useSnapshot } from 'valtio'
 
@@ -36,7 +35,6 @@ interface TextSelectionMenuProps {
 export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   tab,
 }) => {
-  
   const { rendition, annotationRange } = useSnapshot(tab)
 
   // `manager` is not reactive, so we need to use getter
@@ -67,6 +65,28 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   const anchorRect = rects && (forward ? last(rects) : rects[0])
   if (!anchorRect) return null
 
+  const handleTranslateClick = async (highlightedText, setTranslation) => {
+    const targetLanguage = 'en'
+
+    // Constructing the URL with query parameters
+    const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(
+      highlightedText,
+    )}&target=${encodeURIComponent(targetLanguage)}`
+
+    try {
+      console.time('FetchTime')
+      const response = await fetch(apiUrl)
+      console.timeEnd('FetchTime')
+      console.time('ParseTime')
+      const data = await response.json()
+      console.timeEnd('ParseTime')
+      console.log('got translation: ', decode(data.output))
+      setTranslation(decode(data.output)) // Assuming the response has an 'output' field
+    } catch (error) {
+      console.error('Translation error:', error)
+    }
+  }
+
   const contents = range.cloneContents()
   const text = contents.textContent?.trim()
   if (!text) return null
@@ -93,6 +113,7 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
           tab.annotationRange = undefined
         }
       }}
+      handleTranslateClick={handleTranslateClick}
     />
   )
 }
@@ -119,6 +140,7 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
   forward,
   text,
   hide,
+  handleTranslateClick,
 }) => {
   const setAction = useSetAction()
   const ref = useRef<HTMLInputElement>(null)
@@ -145,32 +167,16 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
     ? anchorRect.height
     : _lineHeight * (zoom ?? 1)
 
-  const [translation, setTranslation] = useState('');
+  const [translation, setTranslation] = useState('')
+  const [showTranslation, setShowTranslation] = useState(true)
 
-  const handleTranslateClick = async (highlightedText) => {
-    const targetLanguage = 'en'; // Example target language
-  
-    // Constructing the URL with query parameters
-    const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(highlightedText)}&target=${encodeURIComponent(targetLanguage)}`;
-  
-    try {
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-      console.log("got translation: ", decode(data.output));
-      setTranslation(decode(data.output)); // Assuming the response has a translatedText field
-    } catch (error) {
-      console.error('Translation error:', error);
-    }
-  };
-  
 
-  // const PopupBox = ({ text }) => {
-  //   return (
-  //     <div style=".popup-box {position: absolute;background-color: white;        border: 1px solid black;padding: 10px;}">
-  //       {text}
-  //     </div>
-  //   );
-  // };
+    // Call the translate function when text is available
+    useEffect(() => {
+      if (text) {
+        handleTranslateClick(text, setTranslation);
+      }
+    }, [text, handleTranslateClick]);
 
   return (
     <FocusLock disabled={mobile}>
@@ -212,153 +218,147 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
           }
         }}
       >
-                {translation && (
-        /* {translation && <PopupBox text={translation} />} Popup component */
-          <div className="mb-3 flex cursor-pointer items-center justify-center gap-1 notranslate">
-            {translation}
-          </div>
-
-        
-        )}
-
-        {annotate ? (
-          <div className="mb-3">
-            <TextField
-              mRef={ref}
-              as="textarea"
-              name="notes"
-              defaultValue={annotation?.notes}
-              hideLabel
-              className="h-40 w-72"
-              autoFocus
-            />
-          </div>
-        ) : (
-          <div className="text-on-surface-variant -mx- mb-3 flex gap-1">
-            <IconButton
-              title={t('copy')}
-              Icon={MdCopyAll}
-              size={ICON_SIZE}
-              onClick={() => {
-                hide()
-                copy(text)
-              }}
-            />
-            <IconButton
-              title={t('search_in_book')}
-              Icon={MdSearch}
-              size={ICON_SIZE}
-              onClick={() => {
-                hide()
-                setAction('search')
-                tab.setKeyword(text)
-              }}
-            />
-            <IconButton
-              title={t('annotate')}
-              Icon={MdOutlineEdit}
-              size={ICON_SIZE}
-              onClick={() => {
-                setAnnotate(true)
-              }}
-            />
-            {tab.isDefined(text) ? (
+          {showTranslation ? (
+        <div className="text-on-surface-variant -mx- mb-3 flex gap-1">
+        <div
+              className="notranslate mb-3 flex cursor-pointer items-center justify-center gap-1"
+              onClick={() => setShowTranslation(false)}
+            >
+              {translation}
+            </div>
+            </div>
+          ) : annotate ? (
+            <div className="mb-3">
+              <TextField
+                mRef={ref}
+                as="textarea"
+                name="notes"
+                defaultValue={annotation?.notes}
+                hideLabel
+                className="h-40 w-72"
+                autoFocus
+              />
+            </div>
+          ) : (
+            <div className="text-on-surface-variant -mx- mb-3 flex gap-1">
               <IconButton
-                title={t('undefine')}
-                Icon={MdOutlineIndeterminateCheckBox}
+                title={t('copy')}
+                Icon={MdCopyAll}
                 size={ICON_SIZE}
                 onClick={() => {
                   hide()
-                  tab.undefine(text)
+                  copy(text)
                 }}
               />
-            ) : (
               <IconButton
-                title={t('define')}
-                Icon={MdOutlineAddBox}
+                title={t('search_in_book')}
+                Icon={MdSearch}
                 size={ICON_SIZE}
                 onClick={() => {
                   hide()
-                  tab.define([text])
+                  setAction('search')
+                  tab.setKeyword(text)
                 }}
               />
-            )}
-                        <IconButton
-              title={t('translate')}
-              Icon={MdSportsKabaddi}
-              size={ICON_SIZE}
-              onClick={() => {
-                handleTranslateClick(text)
-              }}
-            />
-
-          </div>
-        )}
-        <div className="space-y-2">
-          {keys(typeMap).map((type) => (
-            <div key={type} className="flex gap-2">
-              {keys(colorMap).map((color) => (
-                <div
-                  key={color}
-                  style={{
-                    [typeMap[type].style]: colorMap[color],
-                    width: ANNOTATION_SIZE,
-                    height: ANNOTATION_SIZE,
-                    fontSize: scale(16, 20),
-                  }}
-                  className={clsx(
-                    'typescale-body-large text-on-surface-variant flex cursor-pointer items-center justify-center',
-                    typeMap[type].class,
-                  )}
+              <IconButton
+                title={t('annotate')}
+                Icon={MdOutlineEdit}
+                size={ICON_SIZE}
+                onClick={() => {
+                  setAnnotate(true)
+                }}
+              />
+              {tab.isDefined(text) ? (
+                <IconButton
+                  title={t('undefine')}
+                  Icon={MdOutlineIndeterminateCheckBox}
+                  size={ICON_SIZE}
                   onClick={() => {
-                    tab.putAnnotation(
-                      type,
-                      cfi,
-                      color,
-                      text,
-                      ref.current?.value,
-                    )
                     hide()
+                    tab.undefine(text)
                   }}
-                >
-                  A
+                />
+              ) : (
+                <IconButton
+                  title={t('define')}
+                  Icon={MdOutlineAddBox}
+                  size={ICON_SIZE}
+                  onClick={() => {
+                    hide()
+                    tab.define([text])
+                  }}
+                />
+              )}
+            </div>
+          )}
+
+          {!showTranslation && (
+            <div className="space-y-2">
+              {keys(typeMap).map((type) => (
+                <div key={type} className="flex gap-2">
+                  {keys(colorMap).map((color) => (
+                    <div
+                      key={color}
+                      style={{
+                        [typeMap[type].style]: colorMap[color],
+                        width: ANNOTATION_SIZE,
+                        height: ANNOTATION_SIZE,
+                        fontSize: scale(16, 20),
+                      }}
+                      className={clsx(
+                        'typescale-body-large text-on-surface-variant flex cursor-pointer items-center justify-center',
+                        typeMap[type].class,
+                      )}
+                      onClick={() => {
+                        tab.putAnnotation(
+                          type,
+                          cfi,
+                          color,
+                          text,
+                          ref.current?.value,
+                        )
+                        hide()
+                      }}
+                    >
+                      A
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-          ))}
-        </div>
-        {annotate && (
-          <div className="mt-3 flex">
-            {annotation && (
+          )}
+          {!showTranslation && annotate && (
+            <div className="mt-3 flex">
+              {annotation && (
+                <Button
+                  compact
+                  variant="secondary"
+                  onClick={() => {
+                    tab.removeAnnotation(cfi)
+                    hide()
+                  }}
+                >
+                  {t('delete')}
+                </Button>
+              )}
               <Button
+                className="ml-auto"
                 compact
-                variant="secondary"
                 onClick={() => {
-                  tab.removeAnnotation(cfi)
+                  tab.putAnnotation(
+                    annotation?.type ?? 'highlight',
+                    cfi,
+                    annotation?.color ?? 'yellow',
+                    text,
+                    ref.current?.value,
+                  )
                   hide()
                 }}
               >
-                {t('delete')}
+                {t(annotation ? 'update' : 'create')}
               </Button>
-            )}
-            <Button
-              className="ml-auto"
-              compact
-              onClick={() => {
-                tab.putAnnotation(
-                  annotation?.type ?? 'highlight',
-                  cfi,
-                  annotation?.color ?? 'yellow',
-                  text,
-                  ref.current?.value,
-                )
-                hide()
-              }}
-            >
-              {t(annotation ? 'update' : 'create')}
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
       </div>
     </FocusLock>
   )
