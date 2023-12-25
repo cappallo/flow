@@ -31,6 +31,7 @@ export const Settings: React.FC = () => {
             }}
           >
             <option value="en-US">English</option>
+            <option value="eo">Esperanto</option>
             <option value="zh-CN">简体中文</option>
           </Select>
         </Item>

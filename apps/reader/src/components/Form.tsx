@@ -7,7 +7,7 @@ import {
   ComponentProps,
 } from 'react'
 import { IconType } from 'react-icons'
-import { MdCheck, MdClose } from 'react-icons/md'
+import { MdCheck, MdClose, MdSportsKabaddi } from 'react-icons/md'
 import { PolymorphicPropsWithoutRef } from 'react-polymorphic-types'
 
 import { useMobile, useTranslation } from '../hooks'

@@ -1,6 +1,6 @@
 import { Overlay } from '@literal-ui/core'
 import clsx from 'clsx'
-import { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import FocusLock from 'react-focus-lock'
 import {
   MdCopyAll,
@@ -8,6 +8,7 @@ import {
   MdOutlineEdit,
   MdOutlineIndeterminateCheckBox,
   MdSearch,
+  MdSportsKabaddi,
 } from 'react-icons/md'
 import { useSnapshot } from 'valtio'
 
@@ -27,6 +28,7 @@ import { copy, keys, last } from '../utils'
 import { Button, IconButton } from './Button'
 import { TextField } from './Form'
 import { layout, LayoutAnchorMode, LayoutAnchorPosition } from './base'
+import { decode } from 'he'
 
 interface TextSelectionMenuProps {
   tab: BookTab
@@ -34,6 +36,7 @@ interface TextSelectionMenuProps {
 export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   tab,
 }) => {
+  
   const { rendition, annotationRange } = useSnapshot(tab)
 
   // `manager` is not reactive, so we need to use getter
@@ -142,6 +145,33 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
     ? anchorRect.height
     : _lineHeight * (zoom ?? 1)
 
+  const [translation, setTranslation] = useState('');
+
+  const handleTranslateClick = async (highlightedText) => {
+    const targetLanguage = 'en'; // Example target language
+  
+    // Constructing the URL with query parameters
+    const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(highlightedText)}&target=${encodeURIComponent(targetLanguage)}`;
+  
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      console.log("got translation: ", decode(data.output));
+      setTranslation(decode(data.output)); // Assuming the response has a translatedText field
+    } catch (error) {
+      console.error('Translation error:', error);
+    }
+  };
+  
+
+  // const PopupBox = ({ text }) => {
+  //   return (
+  //     <div style=".popup-box {position: absolute;background-color: white;        border: 1px solid black;padding: 10px;}">
+  //       {text}
+  //     </div>
+  //   );
+  // };
+
   return (
     <FocusLock disabled={mobile}>
       <Overlay
@@ -182,6 +212,15 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
           }
         }}
       >
+                {translation && (
+        /* {translation && <PopupBox text={translation} />} Popup component */
+          <div className="mb-3 flex cursor-pointer items-center justify-center gap-1 notranslate">
+            {translation}
+          </div>
+
+        
+        )}
+
         {annotate ? (
           <div className="mb-3">
             <TextField
@@ -244,6 +283,15 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
                 }}
               />
             )}
+                        <IconButton
+              title={t('translate')}
+              Icon={MdSportsKabaddi}
+              size={ICON_SIZE}
+              onClick={() => {
+                handleTranslateClick(text)
+              }}
+            />
+
           </div>
         )}
         <div className="space-y-2">

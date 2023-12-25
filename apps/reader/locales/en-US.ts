@@ -62,6 +62,7 @@ export default {
   'menu.create': 'Create',
   'menu.delete': 'Delete',
   'menu.update': 'Update',
+  'menu.translate': 'Translate',
 
   'action.expand_all': 'Expand All',
   'action.collapse_all': 'Collapse All',

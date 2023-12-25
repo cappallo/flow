@@ -40,7 +40,7 @@ const config = {
     return config
   },
   i18n: {
-    locales: ['en-US', 'zh-CN'],
+    locales: ['en-US', 'eo', 'zh-CN'],
     defaultLocale: 'en-US',
   },
   ...(IS_DOCKER && {

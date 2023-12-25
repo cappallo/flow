@@ -9,9 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@github/mini-throttle": "^2.1.0",
     "@flow/epubjs": "workspace:*",
     "@flow/internal": "workspace:*",
+    "@github/mini-throttle": "^2.1.0",
+    "@google-cloud/translate": "^8.0.2",
     "@literal-ui/core": "0.0.13",
     "@literal-ui/hooks": "0.0.8",
     "@literal-ui/next": "0.0.3",
@@ -26,6 +27,7 @@
     "dexie-react-hooks": "1.1.1",
     "dropbox": "^10.32.0",
     "file-saver": "^2.0.5",
+    "he": "^1.2.0",
     "jszip": "^3.10.1",
     "next": "12.3.4",
     "next-seo": "5.4.0",

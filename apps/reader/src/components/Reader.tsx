@@ -432,7 +432,7 @@ const ReaderPaneHeader: React.FC<ReaderPaneHeaderProps> = ({ tab }) => {
         {navPath.map((item, i) => (
           <button
             key={i}
-            className="hover:text-on-surface flex shrink-0 items-center"
+            className="hover:text-on-surface flex shrink-0 items-center notranslate"
           >
             {item.label}
             {i !== navPath.length - 1 && <MdChevronRight size={20} />}
@@ -440,7 +440,7 @@ const ReaderPaneHeader: React.FC<ReaderPaneHeaderProps> = ({ tab }) => {
         ))}
       </div>
       {location && (
-        <div className="shrink-0">
+        <div className="shrink-0 notranslate">
           {location.start.displayed.page} / {location.start.displayed.total}
         </div>
       )}
@@ -477,8 +477,8 @@ const ReaderPaneFooter: React.FC<FooterProps> = ({ tab }) => {
         </>
       ) : (
         <>
-          <div>{location?.start.href}</div>
-          <div>{((book.percentage ?? 0) * 100).toFixed()}%</div>
+          <div className="notranslate">{location?.start.href}</div>
+          <div className="notranslate">{((book.percentage ?? 0) * 100).toFixed()}%</div>
         </>
       )}
     </Bar>
