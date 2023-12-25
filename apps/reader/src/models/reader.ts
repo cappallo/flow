@@ -363,6 +363,8 @@ export class BookTab extends BaseTab {
       this.epub.renderTo(el, {
         width: '100%',
         height: '100%',
+        flow: 'paginated', // Ensure content is paginated
+        spread: 'none', // Display single page at a time        
         allowScriptedContent: true,
       }),
     )

@@ -362,7 +362,7 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
       const absX = Math.abs(deltaX)
       const absY = Math.abs(deltaY)
 
-      if (absX < 10) return
+      if (absX < 5) return
 
       if (absY / absX > 2) {
         if (deltaT > 100 || absX < 30) {

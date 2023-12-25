@@ -237,11 +237,14 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
         }}
       >
         {showTranslation ? (
-            <div
-              className="notranslate flex cursor-pointer items-center justify-center"
-              onClick={() => setShowTranslation(false)}
-            >
-              {translation || <div className="spinner"></div>}
+          <div
+            className="notranslate popup"
+            style={{
+              fontSize: lineHeight * 0.75
+            }}
+            onClick={() => setShowTranslation(false)}
+          >
+            {translation || <div className="spinner"></div>}
           </div>
         ) : annotate ? (
           <div className="mb-3">

@@ -67,7 +67,7 @@ function GoogleTagManagerNoScript() {
 
 const background = {
   light: 'white',
-  dark: '#24292e',
+  dark: 'black',
 }
 
 // external import in `_document.tsx` will break fast refresh,

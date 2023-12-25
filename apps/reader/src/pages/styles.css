@@ -128,3 +128,7 @@ p {
   height: 20px;
   animation: spin 2s linear infinite;
 }
+
+.popup {
+  font-weight: bold;
+}
