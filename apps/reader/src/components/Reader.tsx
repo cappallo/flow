@@ -287,6 +287,10 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
     setDragEvent(e)
   })
 
+  // useEventListener(iframe, 'contextmenu', (e) => {
+  //   e.preventDefault();
+  // });
+  
   useEventListener(iframe, 'mousedown', onMouseDown)
 
   useEventListener(iframe, 'click', (e) => {

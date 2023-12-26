@@ -11,5 +11,6 @@
     "/apps/website/src/components",
     "/apps/reader/src/hooks/theme",
     "/apps/reader/src/models"
-  ]
+  ],
+  "css.customData": [".vscode/tailwind.json"]
 }

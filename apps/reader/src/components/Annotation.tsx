@@ -108,41 +108,54 @@ interface AnnotationProps {
   annotation: IAnnotation
 }
 const Annotation: React.FC<AnnotationProps> = ({ tab, annotation }) => {
-  const { rendition } = useSnapshot(tab)
+  const { rendition } = useSnapshot(tab);
 
   useEffect(() => {
-    const h = rendition?.annotations[annotation.type](
-      annotation.cfi,
-      undefined,
-      undefined,
-      undefined,
-      {
-        fill: colorMap[annotation.color],
-        'fill-opacity': '0.5',
-      },
-    )
+    // Check if rendition and annotation CFI are valid
+    if (!rendition || !annotation.cfi) {
+      return;
+    }
 
-    const g = h?.mark?.element as SVGGElement
+    try {
+      const h = rendition.annotations[annotation.type](
+        annotation.cfi,
+        undefined,
+        undefined,
+        undefined,
+        {
+          fill: colorMap[annotation.color],
+          'fill-opacity': '0.5',
+        },
+      );
 
-    // `<rect>` should be reserved to response `click`
-    g?.addEventListener('click', () => {
-      tab.setAnnotationRange(annotation.cfi)
-      setClickedAnnotation(true)
-    })
+      const g = h?.mark?.element as SVGGElement;
+
+      g?.addEventListener('click', () => {
+        tab.setAnnotationRange(annotation.cfi);
+        setClickedAnnotation(true);
+      });
+    } catch (error) {
+      // Error is ignored
+      console.error('Error in annotation:', error);
+    }
 
     return () => {
-      rendition?.annotations.remove(annotation.cfi, annotation.type)
-    }
+      try {
+        rendition.annotations.remove(annotation.cfi, annotation.type);
+      } catch (error) {
+        // Error during cleanup is also ignored
+      }
+    };
   }, [
     annotation.cfi,
     annotation.color,
     annotation.type,
     rendition?.annotations,
     tab,
-  ])
+  ]);
 
-  return null
-}
+  return null;
+};
 
 interface AnnotationsProps {
   tab: BookTab

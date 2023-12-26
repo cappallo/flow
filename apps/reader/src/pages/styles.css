@@ -132,3 +132,7 @@ p {
 .popup {
   font-weight: bold;
 }
+
+.no-context-menu {
+  -webkit-touch-callout: none; /* iOS Safari */
+}

@@ -66,10 +66,12 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   if (!anchorRect) return null
 
   const handleTranslateClick = async (highlightedText) => {
-    const targetLanguage = 'en'
+    const targetLanguage = 'en-US'
+    const sourceLanguage = 'eo'
+    
     const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(
       highlightedText,
-    )}&target=${encodeURIComponent(targetLanguage)}`
+    )}&target=${encodeURIComponent(targetLanguage)}&source=${encodeURIComponent(sourceLanguage)}`
 
     try {
       console.time('FetchTime')
