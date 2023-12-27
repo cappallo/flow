@@ -263,17 +263,20 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
       indexNum = Number(index);
     }
   
-    const isOriginal = pTag.classList.contains('notranslate');
+    const isTranslated = pTag.classList.contains('is-translated');
     const temp = pTag.innerHTML
+    if (!pTag.classList.contains('notranslate')) {
+      pTag.classList.add('notranslate');
+    }
   
     // Toggle the content and the class
-    if (isOriginal) {
+    if (isTranslated) {
       pTag.innerHTML = originalParagraphs.current[indexNum] ?? pTag.innerHTML
-      pTag.classList.remove('notranslate');
+      pTag.classList.remove('is-translated');
       console.log("set paragraph to translated version")
     } else {
       pTag.innerHTML = originalParagraphs.current[indexNum] ?? pTag.innerHTML
-      pTag.classList.add('notranslate');
+      pTag.classList.add('is-translated');
       console.log("set paragraph to original text")
     }
 
