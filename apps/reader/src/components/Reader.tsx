@@ -436,7 +436,7 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
 
       const w = container.clientWidth
       const x = e.clientX % w
-      const threshold = 0.2
+      const threshold = 0.15
       const side = w * threshold
 
       if (x < side) {
@@ -508,10 +508,10 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
       const absX = Math.abs(deltaX)
       const absY = Math.abs(deltaY)
 
-      if (absX < 5) return
+      if (absX < 20) return
 
       if (absY / absX > 2) {
-        if (deltaT > 100 || absX < 30) {
+        if (deltaT > 100 || absX < 40) {
           return
         }
       }
