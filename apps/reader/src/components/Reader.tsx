@@ -204,6 +204,12 @@ interface BookPaneProps {
   onMouseDown: () => void
 }
 
+// function relocateViewToPercentage(tab: BookTab) {
+//   if (tab instanceof BookTab && tab.book && typeof tab.book.percentage === 'number') {
+//     tab.relocateToPercentage(tab.book.percentage);
+//     console.log("relocating to percentage:", tab.book.percentage)
+//   }
+// }
 function BookPane({ tab, onMouseDown }: BookPaneProps) {
   const ref = useRef<HTMLDivElement>(null)
   const prevSize = useRef(0)
@@ -214,6 +220,116 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
   const { iframe, rendition, rendered, container } = useSnapshot(tab)
 
   useTilg()
+
+  // useEffect(() => {
+  //   // MutationObserver for translation state change
+  //   const mutationObserver = new MutationObserver((mutations) => {
+  //     for (let mutation of mutations) {
+  //       if (document.documentElement.className.match('translated')) {
+  //         console.log("Detected translation change")
+  //         // Wait for a specified duration before handling translation change
+  //         setTimeout(() => {
+  //           relocateViewToPercentage(tab);
+  //         }, 1000); // Delay of 1000ms
+  //         break;
+  //       }
+  //     }
+  //   });
+  
+  //   mutationObserver.observe(document.documentElement, {
+  //     attributes: true,
+  //     attributeFilter: ['class']
+  //   });
+  
+  //   return () => {
+  //     mutationObserver.disconnect();
+  //   };
+  // }, [tab]);
+  
+  const originalParagraphs = useRef<string[]>([]); // Store original paragraphs
+
+  function toggleParagraphContent(pTag: HTMLElement) {
+    console.log("called toggleParagraph with ", pTag)
+    const index = pTag.getAttribute('data-index');
+    let indexNum = -1
+    if (index === null || index === undefined) {
+      console.log("no index found, trying counting")
+      indexNum = getParagraphIndex(pTag)
+      if (indexNum === null || indexNum === undefined || indexNum === -1) {
+        console.log("failed that too, bailing")
+        return;
+      }
+    } else {
+      indexNum = Number(index);
+    }
+  
+    const isOriginal = pTag.classList.contains('notranslate');
+    const temp = pTag.innerHTML
+  
+    // Toggle the content and the class
+    if (isOriginal) {
+      pTag.innerHTML = originalParagraphs.current[indexNum] ?? pTag.innerHTML
+      pTag.classList.remove('notranslate');
+      console.log("set paragraph to translated version")
+    } else {
+      pTag.innerHTML = originalParagraphs.current[indexNum] ?? pTag.innerHTML
+      pTag.classList.add('notranslate');
+      console.log("set paragraph to original text")
+    }
+
+    originalParagraphs.current[indexNum] = temp
+  }
+  
+  function getParagraphIndex(element: HTMLElement) {
+    let pTag = element;
+    let index = 0;
+  
+    // Traverse up to find the nearest <p> ancestor
+    while (pTag && pTag.tagName !== 'P') {
+      pTag = pTag.parentNode as HTMLElement;
+    }
+  
+    // Count preceding <p> siblings
+    while (pTag && pTag.previousElementSibling) {
+      if (pTag.previousElementSibling.tagName === 'P') {
+        index++;
+      }
+      pTag = pTag.previousElementSibling as HTMLElement;
+    }
+  
+    return index;
+  }
+
+  useEffect(() => {
+    console.log("entering indexer")
+    const document = tab.section?.document
+    if (!document) return;
+
+    console.log("document found", document)
+    const paragraphs = document.querySelectorAll('p');
+    if (!paragraphs) return;
+
+    console.log("paragraphs found", paragraphs)
+    paragraphs.forEach((p, index) => {
+      // if (p.hasAttribute('data-index')) {
+      //   console.log("data-index already set, aborting")
+      //   return
+      // }
+      originalParagraphs.current[index] = p.innerHTML;
+      p.setAttribute('data-index', index.toString())
+      // p.addEventListener('click', toggleParagraphContent);
+    });
+
+    console.log("made paragraphs as originalParagraphs:", originalParagraphs)
+    // Clean up
+    return () => {
+      // paragraphs.forEach(p => {
+      //   // p.removeEventListener('click', toggleParagraphContent);
+      // });
+    };
+  }, [tab.section]);
+
+
 
   useEffect(() => {
     const el = ref.current
@@ -291,7 +407,7 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
   //   e.preventDefault();
   // });
   
-  useEventListener(iframe, 'mousedown', onMouseDown)
+  // useEventListener(iframe, 'mousedown', onMouseDown)
 
   useEventListener(iframe, 'click', (e) => {
     // https://developer.chrome.com/blog/tap-to-search
@@ -317,16 +433,39 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
 
       const w = container.clientWidth
       const x = e.clientX % w
-      const threshold = 0.3
+      const threshold = 0.2
       const side = w * threshold
 
       if (x < side) {
         tab.prev()
+        return
       } else if (w - x < side) {
         tab.next()
-      } else if (mobile) {
-        setNavbar((a) => !a)
+        return
       }
+    }
+
+    let targetElement = e.target as HTMLElement;
+    console.log("clicked touchscreen, e=", e)
+
+    // Traverse up to find the nearest <p> ancestor
+    while (targetElement && targetElement.tagName !== 'P') {
+      targetElement = targetElement.parentNode as HTMLElement;
+  
+      // If we've reached the top of the document without finding a <p>, exit the loop
+      if (!targetElement || targetElement === document.body) {
+        break;
+      }
+    }
+  
+    // Check if we found a <p> element
+    if (targetElement && targetElement.tagName === 'P') {
+      toggleParagraphContent(targetElement);
+      return;
+    }
+
+    if (isTouchScreen && container && mobile) {
+        setNavbar((a) => !a)
     }
   })
 
@@ -385,6 +524,7 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
   })
 
   useDisablePinchZooming(iframe)
+
 
   return (
     <div className={clsx('flex h-full flex-col', mobile && 'py-[3vw]')}>
@@ -481,7 +621,7 @@ const ReaderPaneFooter: React.FC<FooterProps> = ({ tab }) => {
         </>
       ) : (
         <>
-          <div className="notranslate">{location?.start.href}</div>
+          <div className="notranslate">{location?.start.cfi}</div>
           <div className="notranslate">{((book.percentage ?? 0) * 100).toFixed()}%</div>
         </>
       )}

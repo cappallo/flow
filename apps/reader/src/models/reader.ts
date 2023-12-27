@@ -97,6 +97,61 @@ export class BookTab extends BaseTab {
     return this.timeline[0]?.location
   }
 
+  relocateToPercentage(percentage: number) {
+    if (!this.sections || !this.rendition) return;
+
+    console.log("hopefully cfi is:", this.location?.start?.cfi)
+    // this.display(this.location?.start?.cfi)
+    // this.display(this.rendition.location?.start?.cfi)
+    // this.rendition.moveTo(10000)
+    return;
+    
+
+    // let cfi = this.rendition?.currentLocation().cfi
+    // let sectionPercentage = cfi / this.section?.length
+    let totalLength = this.totalLength;
+    let targetLength = totalLength * percentage;
+    let cumulativeLength = 0;
+
+    console.log("targetLength:", targetLength)
+
+      // // calculate percentage
+      // if (this.sections) {
+      //   const start = this.location?.start
+      //   const i = this.sections.findIndex((s) => s.href === start?.href)
+      //   const previousSectionsLength = this.sections
+      //     .slice(0, i)
+      //     .reduce((acc, s) => acc + s.length, 0)
+      //   const previousSectionsPercentage =
+      //     previousSectionsLength / this.totalLength
+      //   const currentSectionPercentage =
+      //     this.sections[i]!.length / this.totalLength
+      //   const displayedPercentage = start.displayed.page / start.displayed.total
+
+      //   const percentage =
+      //     previousSectionsPercentage +
+      //     currentSectionPercentage * displayedPercentage
+
+      //   this.updateBook({ cfi: start.cfi, percentage })
+      // }
+
+    // for (let section of this.sections) {
+    //   cumulativeLength += section.length;
+    //   if (cumulativeLength >= targetLength) {
+    //     // Calculate the approximate CFI for this section and percentage
+    //     let sectionPercentage = (targetLength - (cumulativeLength - section.length)) / section.length;
+    //     console.log("section percentage:", sectionPercentage)
+    //     console.log("section length:", section.length)
+    //     let pageIndex = Math.floor(sectionPercentage * section.length);
+    //     let cfi = section.cfiBase + pageIndex; // Adjust this calculation based on how your CFI is structured
+    //     // console.log("calling display for cfi:", cfi)
+    //     // this.display(cfi);
+    //     this.rendition?.moveTo(0)
+    //     break;
+    //   }
+    // }
+  }
+
   display(target?: string, returnable = true) {
     this.rendition?.display(target)
     if (returnable) this.showPrevLocation()

@@ -65,7 +65,7 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   const anchorRect = rects && (forward ? last(rects) : rects[0])
   if (!anchorRect) return null
 
-  const handleTranslateClick = async (highlightedText) => {
+  const handleTranslateClick = async (highlightedText: string) => {
     const targetLanguage = 'en-US'
     const sourceLanguage = 'eo'
     
@@ -129,6 +129,7 @@ interface TextSelectionMenuRendererProps {
   text: string
   forward: boolean
   hide: () => void
+  handleTranslateClick: (arg0: string) => Promise<string>
 }
 const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
   tab,
@@ -170,9 +171,9 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
   const [showTranslation, setShowTranslation] = useState(true)
   const [isTranslating, setIsTranslating] = useState(false)
   const isTranslatingRef = useRef(false)
-  const pendingTranslationRef = useRef(null)
+  const pendingTranslationRef = useRef<string | null>(null)
 
-  const processTranslation = async (textToTranslate) => {
+  const processTranslation = async (textToTranslate: string) => {
     isTranslatingRef.current = true
     try {
       const translatedText = await handleTranslateClick(textToTranslate)
@@ -188,15 +189,17 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
     }
   }
 
+
   useEffect(() => {
     if (text) {
       if (isTranslatingRef.current) {
-        pendingTranslationRef.current = text
+        pendingTranslationRef.current = text 
       } else {
         processTranslation(text)
       }
     }
   }, [text, handleTranslateClick])
+
 
   return (
     <FocusLock disabled={mobile}>
