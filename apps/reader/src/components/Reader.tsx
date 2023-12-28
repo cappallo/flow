@@ -43,6 +43,34 @@ import { TextSelectionMenu } from './TextSelectionMenu'
 import { DropZone, SplitView, useDndContext, useSplitViewItem } from './base'
 import * as pages from './pages'
 
+import type { Rendition, Location, Book } from '@flow/epubjs'
+
+class BaseTab {
+  constructor(public readonly id: string, public readonly title = id) {}
+
+  get isBook(): boolean {
+    return this instanceof BookTab
+  }
+
+  get isPage(): boolean {
+    return this instanceof PageTab
+  }
+}
+
+type Group = {
+  id: string
+  index: number
+  tabs: BookTab[]
+}
+
+type Tab = BookTab | PageTab
+class PageTab extends BaseTab {
+  constructor(public readonly Component: React.FC<any>) {
+    super(Component.displayName ?? 'untitled')
+  }
+}
+type GroupsArray = Group[]
+
 function handleKeyDown(tab?: BookTab) {
   return (e: KeyboardEvent) => {
     try {
@@ -69,7 +97,7 @@ export function ReaderGridView() {
 
   useEventListener('keydown', handleKeyDown(reader.focusedBookTab))
 
-  if (!groups.length) return null
+  if (!Array.isArray(groups) || !groups.length) return null
   return (
     <SplitView className={clsx('ReaderGridView')}>
       {groups.map(({ id }, i) => (
@@ -82,6 +110,14 @@ export function ReaderGridView() {
 interface ReaderGroupProps {
   index: number
 }
+/**
+ * Renders a reader group.
+ * 
+ * @param index - The index of the group to render.
+ * 
+ * Renders the tabs, drop zones, and panes for a reader group. Handles tab selection, 
+ * drag and drop, and deletion. Connects the group to the global reader state.
+ */
 function ReaderGroup({ index }: ReaderGroupProps) {
   const group = reader.groups[index]!
   const { focusedIndex } = useReaderSnapshot()
@@ -97,7 +133,7 @@ function ReaderGroup({ index }: ReaderGroupProps) {
     reader.selectGroup(index)
   }, [index])
 
-  return (
+      return (
     <div
       className="ReaderGroup flex flex-1 flex-col overflow-hidden focus:outline-none"
       onMouseDown={handleMouseDown}
@@ -107,7 +143,7 @@ function ReaderGroup({ index }: ReaderGroupProps) {
         className="hidden sm:flex"
         onDelete={() => reader.removeGroup(index)}
       >
-        {tabs.map((tab, i) => {
+        {tabs.map((tab: BaseTab, i) => {
           const selected = i === selectedIndex
           const focused = index === focusedIndex && selected
           return (
