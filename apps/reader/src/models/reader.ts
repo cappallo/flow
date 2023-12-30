@@ -20,6 +20,31 @@ function updateIndex(array: any[], deletedItemIndex: number) {
   return deletedItemIndex > last ? last : deletedItemIndex
 }
 
+function simplifyCfi(cfi: string) {
+  // Split the string by slashes
+  const parts = cfi.split('/');
+
+  // Find the largest integer value and its index
+  let largestValue = -Infinity;
+  let largestIndex = -1;
+  parts.forEach((part: string, index: number) => {
+    const intValue = parseInt(part);
+    if (!isNaN(intValue) && intValue >= largestValue) {
+      largestValue = intValue;
+      largestIndex = index;
+    }
+  });
+
+  // Reconstruct the string, omitting parts beyond the largest integer value
+  // but keeping at least the first two parts
+  const minIndexToKeep = Math.max(largestIndex, 4);
+  const filteredParts = parts.slice(0, minIndexToKeep + 1);
+  filteredParts.push(parts[parts.length - 1])
+
+  // Join the parts back together with slashes
+  return filteredParts.join('/');
+}
+
 export function compareHref(
   sectionHref: string | undefined,
   navitemHref: string | undefined,
@@ -422,9 +447,13 @@ export class BookTab extends BaseTab {
       }),
     )
     console.log(this.rendition)
-    this.rendition.display(
-      this.location?.start.cfi ?? this.book.cfi ?? undefined,
-    )
+    let loc = this.location?.start.cfi ?? this.book.cfi ?? undefined
+    if (loc !== undefined) {
+      console.log("read CFI as: ", loc)
+      loc = simplifyCfi(loc)
+      console.log("simplified CFI to: ", loc)
+    }
+    this.rendition.display(loc)
     this.rendition.themes.default(defaultStyle)
     this.rendition.hooks.render.register((view: any) => {
       console.log('hooks.render', view)
