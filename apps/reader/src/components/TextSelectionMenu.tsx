@@ -10,7 +10,7 @@ import {
   MdSearch,
 } from 'react-icons/md'
 import { useSnapshot } from 'valtio'
-
+import { useRouter } from 'next/router'
 import { typeMap, colorMap } from '../annotation'
 import {
   isForwardSelection,
@@ -36,6 +36,8 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
   tab,
 }) => {
   const { rendition, annotationRange } = useSnapshot(tab)
+  const router = useRouter()
+  const locale = router.locale?? 'en-US'
 
   // `manager` is not reactive, so we need to use getter
   const view = useCallback(() => {
@@ -67,7 +69,7 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
 
   const handleTranslateClick = async (highlightedText: string) => {
     const targetLanguage = 'en-US'
-    const sourceLanguage = 'eo'
+    const sourceLanguage = (locale === 'eo' ? 'eo' : '')
     
     const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(
       highlightedText,
