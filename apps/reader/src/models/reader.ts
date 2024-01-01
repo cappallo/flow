@@ -29,7 +29,11 @@ function simplifyCfi(cfi: string) {
   let largestIndex = -1;
   parts.forEach((part: string, index: number) => {
     const intValue = parseInt(part);
+<<<<<<< HEAD
     if (!isNaN(intValue) && intValue >= largestValue) {
+=======
+    if (!isNaN(intValue) && intValue >= largestValue && index > 2) {
+>>>>>>> killtags
       largestValue = intValue;
       largestIndex = index;
     }
@@ -37,9 +41,19 @@ function simplifyCfi(cfi: string) {
 
   // Reconstruct the string, omitting parts beyond the largest integer value
   // but keeping at least the first two parts
+<<<<<<< HEAD
   const minIndexToKeep = Math.max(largestIndex, 4);
   const filteredParts = parts.slice(0, minIndexToKeep + 1);
   filteredParts.push(parts[parts.length - 1])
+=======
+  const minIndexToKeep = Math.max(largestIndex, 3);
+  const filteredParts = parts.slice(0, minIndexToKeep + 1);
+  if (parts.length > 0 && parts[parts.length - 1] !== undefined) {
+    // ensure parts[parts.length - 1] is a string
+
+    filteredParts.push(parts[parts.length - 1] as string)
+  }
+>>>>>>> killtags
 
   // Join the parts back together with slashes
   return filteredParts.join('/');
@@ -87,7 +101,7 @@ interface TimelineItem {
 }
 
 class BaseTab {
-  constructor(public readonly id: string, public readonly title = id) {}
+  constructor(public readonly id: string, public readonly title = id) { }
 
   get isBook(): boolean {
     return this instanceof BookTab
@@ -130,7 +144,7 @@ export class BookTab extends BaseTab {
     // this.display(this.rendition.location?.start?.cfi)
     // this.rendition.moveTo(10000)
     return;
-    
+
 
     // let cfi = this.rendition?.currentLocation().cfi
     // let sectionPercentage = cfi / this.section?.length
@@ -140,25 +154,25 @@ export class BookTab extends BaseTab {
 
     console.log("targetLength:", targetLength)
 
-      // // calculate percentage
-      // if (this.sections) {
-      //   const start = this.location?.start
-      //   const i = this.sections.findIndex((s) => s.href === start?.href)
-      //   const previousSectionsLength = this.sections
-      //     .slice(0, i)
-      //     .reduce((acc, s) => acc + s.length, 0)
-      //   const previousSectionsPercentage =
-      //     previousSectionsLength / this.totalLength
-      //   const currentSectionPercentage =
-      //     this.sections[i]!.length / this.totalLength
-      //   const displayedPercentage = start.displayed.page / start.displayed.total
+    // // calculate percentage
+    // if (this.sections) {
+    //   const start = this.location?.start
+    //   const i = this.sections.findIndex((s) => s.href === start?.href)
+    //   const previousSectionsLength = this.sections
+    //     .slice(0, i)
+    //     .reduce((acc, s) => acc + s.length, 0)
+    //   const previousSectionsPercentage =
+    //     previousSectionsLength / this.totalLength
+    //   const currentSectionPercentage =
+    //     this.sections[i]!.length / this.totalLength
+    //   const displayedPercentage = start.displayed.page / start.displayed.total
 
-      //   const percentage =
-      //     previousSectionsPercentage +
-      //     currentSectionPercentage * displayedPercentage
+    //   const percentage =
+    //     previousSectionsPercentage +
+    //     currentSectionPercentage * displayedPercentage
 
-      //   this.updateBook({ cfi: start.cfi, percentage })
-      // }
+    //   this.updateBook({ cfi: start.cfi, percentage })
+    // }
 
     // for (let section of this.sections) {
     //   cumulativeLength += section.length;
