@@ -29,11 +29,7 @@ function simplifyCfi(cfi: string) {
   let largestIndex = -1;
   parts.forEach((part: string, index: number) => {
     const intValue = parseInt(part);
-<<<<<<< HEAD
-    if (!isNaN(intValue) && intValue >= largestValue) {
-=======
     if (!isNaN(intValue) && intValue >= largestValue && index > 2) {
->>>>>>> killtags
       largestValue = intValue;
       largestIndex = index;
     }
@@ -41,11 +37,6 @@ function simplifyCfi(cfi: string) {
 
   // Reconstruct the string, omitting parts beyond the largest integer value
   // but keeping at least the first two parts
-<<<<<<< HEAD
-  const minIndexToKeep = Math.max(largestIndex, 4);
-  const filteredParts = parts.slice(0, minIndexToKeep + 1);
-  filteredParts.push(parts[parts.length - 1])
-=======
   const minIndexToKeep = Math.max(largestIndex, 3);
   const filteredParts = parts.slice(0, minIndexToKeep + 1);
   if (parts.length > 0 && parts[parts.length - 1] !== undefined) {
@@ -53,7 +44,6 @@ function simplifyCfi(cfi: string) {
 
     filteredParts.push(parts[parts.length - 1] as string)
   }
->>>>>>> killtags
 
   // Join the parts back together with slashes
   return filteredParts.join('/');
