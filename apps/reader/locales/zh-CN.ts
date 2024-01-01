@@ -62,7 +62,7 @@ export default {
   'menu.create': '创建',
   'menu.delete': '删除',
   'menu.update': '更新',
-  'menu.translate': 'Traduki',
+  'menu.translate': '翻译',
 
   'action.expand_all': '展开全部',
   'action.collapse_all': '折叠全部',
