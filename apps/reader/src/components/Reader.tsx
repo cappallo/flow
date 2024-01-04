@@ -276,32 +276,6 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
   
   const paragraphObservers: MutationObserver[] = [];
   
-  // function setUpObservers() {
-  //   // Select all paragraph elements within the book's content
-  //   const paragraphs = tab.section?.document.querySelectorAll('p');
-  //   if (!paragraphs) return;
-  
-  //   paragraphs.forEach((paragraph, index) => {
-  //     const observer = new MutationObserver((mutations) => {
-  //       // For each mutation, clean up the paragraph
-  //       mutations.forEach((mutation) => {
-  //         if (mutation.type === 'childList' || mutation.type === 'characterData') {
-  //           // Clean the paragraph of any unwanted tags
-  //           paragraph.classList.add('notranslate');
-  //           cleanUpParagraph(paragraph);
-  //           // Add the notranslate class if it's not already there
-  //         }
-  //       });
-  //     });
-  
-  //     // Observe the paragraph for changes in children or text content
-  //     observer.observe(paragraph, { childList: true, characterData: true, subtree: true });
-  
-  //     // Store the observer if you need to disconnect it later
-  //     paragraphObservers[index] = observer;
-  //   });
-  // }
-  
   // Later, if you need to disconnect the observers, you can iterate through the stored observers and call disconnect
   function disconnectObservers() {
     paragraphObservers.forEach((observer) => observer.disconnect());
@@ -372,107 +346,6 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
         p.innerHTML = currentDoc.body.innerHTML;
     }
   }
-  
-  // useEffect(() => {
-  //   // MutationObserver for translation state change
-  //   const mutationObserver = new MutationObserver((mutations) => {
-  //     for (let mutation of mutations) {
-  //       if (document.documentElement.className.match('translated')) {
-  //         console.log("Detected translation change")
-  //         // Wait for a specified duration before handling translation change
-  //         setTimeout(() => {
-  //           // cleanUpTranslateTags(tab);
-  //           setUpObservers()
-  //         }, 1000); // Delay of 1000ms
-  //         break;
-  //       }
-  //     }
-  //   });
-  
-  //   mutationObserver.observe(document.documentElement, {
-  //     attributes: true,
-  //     attributeFilter: ['class']
-  //   });
-  
-  //   return () => {
-  //     mutationObserver.disconnect();
-  //   };
-  // }, [tab]);
-  
-  // function cleanUpTranslateTags(tab: BookTab) {
-  //   if (tab instanceof BookTab && tab.book && originalParagraphs.current.length > 0) {
-  //     console.log("Attempting to clean up extraneous Google Translate tags");
-  //     const paragraphs = document.querySelectorAll('p');
-  //     if (!paragraphs) return;
-  
-  //     paragraphs.forEach((p, index) => {
-  //       const originalContent = originalParagraphs.current[index] as string;
-  //       let currentContent = p.innerHTML;
-  
-  //       // Use match to find tags and check if the result is not null
-  //       const matchedTags = currentContent.match(/<[^>]*>/g);
-  //       if (matchedTags) {
-  //         const tagsToRemove = matchedTags.filter(tag => !originalContent.includes(tag));
-  
-  //         tagsToRemove.forEach(tag => {
-  //           currentContent = currentContent.replace(new RegExp(tag, 'g'), '');
-  //         });
-  
-  //         p.innerHTML = currentContent;
-  //       }
-  //     });
-  //   }
-  // }  
-    
-  // function cleanUpTranslateTags(tab: BookTab) {
-  //   if (tab instanceof BookTab && tab.book && originalParagraphs.current.length > 0) {
-  //     console.log("Attempting to clean up extraneous Google Translate tags");
-  //     const paragraphs = document.querySelectorAll('p');
-  //     if (!paragraphs) return;
-  
-  //     paragraphs.forEach((p, index) => {
-  //       if (!p.classList.contains('notranslate')) {
-  //         p.classList.add('notranslate');
-  //       }
-    
-  //       const originalContent = originalParagraphs.current[index] as string;
-  //       let currentContent = p.innerHTML;
-  
-  //       const parser = new DOMParser();
-  //       const originalDoc = parser.parseFromString(originalContent, 'text/html');
-  //       const currentDoc = parser.parseFromString(currentContent, 'text/html');
-  
-  //       // Function to recursively remove extra tags
-  //       function removeExtraTags(originalNode: Node, currentNode: Node) {
-  //         const originalChildren = Array.from(originalNode.childNodes);
-  //         const currentChildren = Array.from(currentNode.childNodes);
-        
-  //         currentChildren.forEach((currentChild: ChildNode, idx) => {
-  //           if (currentChild.nodeType === Node.ELEMENT_NODE) {
-  //             // Check if the original child node exists and has the same node name.
-  //             const originalChild = originalChildren[idx];
-  //             if (!originalChild || originalChild.nodeName !== currentChild.nodeName) {
-  //               // If the tag doesn't exist in the original, remove it
-  //               currentNode.removeChild(currentChild);
-  //             } else {
-  //               // Recurse into the child nodes
-  //               if (originalChild.nodeType === Node.ELEMENT_NODE) {
-  //                 removeExtraTags(originalChild, currentChild);
-  //               }
-  //             }
-  //           }
-  //         });
-  //       }
-          
-  //       // Start the cleaning process
-  //       removeExtraTags(originalDoc.body, currentDoc.body);
-  
-  //       // Update the paragraph content
-  //       p.innerHTML = currentDoc.body.innerHTML;
-  //     });
-  //   }
-  // }
-  
 
   function toggleParagraphContent(pTag: HTMLElement) {
     console.log("called toggleParagraph with ", pTag)
@@ -520,34 +393,6 @@ useEffect(() => {
   });
 
     console.log("made paragraphs as originalParagraphs:", originalParagraphs)
-    // Clean up
-    // return () => {
-    //   // paragraphs.forEach(p => {
-    //   //   // p.removeEventListener('click', toggleParagraphContent);
-    //   // });
-    // };
-    
-  // Clean up observers on unmount or when the component will re-render
-  // const observer = new MutationObserver((mutations) => {
-  //   console.log(`Mutation observed in body`);
-  //   mutations.forEach((mutation) => {
-  //     // if mutation is a subtree, then see if it's a paragraph descendent
-
-      
-  //     if (mutation.type === 'childList') {
-  //       mutation.addedNodes.forEach((node) => {
-  //       console.log(`Cleaning up node ${node}`);
-  //       if (node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'P') {
-  //         const p = node as HTMLElement;
-  //         if (!p.classList.contains('notranslate')) {
-  //           p.classList.add('notranslate');
-  //         }
-  //         cleanUpParagraph(p);
-  //       }
-  //     })
-  //    }
-  // })
-  // })
   const observer = new MutationObserver((mutations) => {
     console.log(`Mutation observed in body`);
     mutations.forEach((mutation) => {
@@ -576,31 +421,6 @@ useEffect(() => {
               node.parentNode?.replaceChild(fragment, node);
               // console.log("removed added font node ", node, " with ", fragment)
             }
-            // Create a TreeWalker to traverse all descendants of the node
-            // const walker = iframe.document.createTreeWalker(
-            //   node,
-            //   NodeFilter.SHOW_ELEMENT,
-            //   {
-            //     acceptNode: function (node) {
-            //       console.log('filtering node: ', node)
-            //       // Filter to only accept <p> elements
-            //       return node.nodeName === 'P' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-            //     },
-            //   }
-            // );
-  
-            // // Use the TreeWalker to iterate over all <p> elements
-            // console.log("attempting to walk with ", walker)
-            // let currentNode = walker.nextNode();
-            // while (currentNode) {
-            //   console.log(`Cleaning up <p> node ${currentNode}`);
-            //   const p = currentNode as HTMLElement;
-            //   if (!p.classList.contains('notranslate')) {
-            //     p.classList.add('notranslate');
-            //   }
-            //   cleanUpParagraph(p);
-            //   currentNode = walker.nextNode();
-            // }
           }
         });
       }
@@ -873,7 +693,7 @@ const ReaderPaneHeader: React.FC<ReaderPaneHeaderProps> = ({ tab }) => {
       </div>
       {location && (
         <div className="shrink-0 notranslate">
-          {location.start.displayed.page} / {location.start.displayed.total}
+          {location.start.displayed.page + 1} / {location.start.displayed.total}
         </div>
       )}
     </Bar>
@@ -910,7 +730,7 @@ const ReaderPaneFooter: React.FC<FooterProps> = ({ tab }) => {
       ) : (
         <>
           <div className="notranslate">{location?.start.cfi}</div>
-          <div className="notranslate">{((book.percentage ?? 0) * 100).toFixed()}%</div>
+          <div className="notranslate">{((book.percentage ?? 0) * 100).toFixed(1)}%</div>
         </>
       )}
     </Bar>

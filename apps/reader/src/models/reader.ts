@@ -116,6 +116,7 @@ export class BookTab extends BaseTab {
   results?: IMatch[]
   activeResultID?: string
   rendered = false
+  honest = true
 
   get container() {
     return this?.rendition?.manager?.container as HTMLDivElement | undefined
@@ -143,42 +144,6 @@ export class BookTab extends BaseTab {
     let cumulativeLength = 0;
 
     console.log("targetLength:", targetLength)
-
-    // // calculate percentage
-    // if (this.sections) {
-    //   const start = this.location?.start
-    //   const i = this.sections.findIndex((s) => s.href === start?.href)
-    //   const previousSectionsLength = this.sections
-    //     .slice(0, i)
-    //     .reduce((acc, s) => acc + s.length, 0)
-    //   const previousSectionsPercentage =
-    //     previousSectionsLength / this.totalLength
-    //   const currentSectionPercentage =
-    //     this.sections[i]!.length / this.totalLength
-    //   const displayedPercentage = start.displayed.page / start.displayed.total
-
-    //   const percentage =
-    //     previousSectionsPercentage +
-    //     currentSectionPercentage * displayedPercentage
-
-    //   this.updateBook({ cfi: start.cfi, percentage })
-    // }
-
-    // for (let section of this.sections) {
-    //   cumulativeLength += section.length;
-    //   if (cumulativeLength >= targetLength) {
-    //     // Calculate the approximate CFI for this section and percentage
-    //     let sectionPercentage = (targetLength - (cumulativeLength - section.length)) / section.length;
-    //     console.log("section percentage:", sectionPercentage)
-    //     console.log("section length:", section.length)
-    //     let pageIndex = Math.floor(sectionPercentage * section.length);
-    //     let cfi = section.cfiBase + pageIndex; // Adjust this calculation based on how your CFI is structured
-    //     // console.log("calling display for cfi:", cfi)
-    //     // this.display(cfi);
-    //     this.rendition?.moveTo(0)
-    //     break;
-    //   }
-    // }
   }
 
   display(target?: string, returnable = true) {
@@ -198,11 +163,18 @@ export class BookTab extends BaseTab {
     // avoid content flash
     if (this.container?.scrollLeft === 0 && !this.location?.atStart) {
       this.rendered = false
+      this.honest = true
+    }
+    if (this.rendition?.location?.start.displayed.page === 1 || this.rendition?.location?.start.displayed.page === 0) {
+      this.honest = true
     }
   }
   next() {
-    this.rendition?.next()
+    if (this.rendition) {
+      this.rendition.next();
+    }
   }
+
 
   updateBook(changes: Partial<BookRecord>) {
     changes = {
@@ -466,6 +438,15 @@ export class BookTab extends BaseTab {
 
     this.rendition.on('relocated', (loc: Location) => {
       console.log('relocated', loc)
+      if (this.honest) {
+        this.honest = false
+        // if (loc.start.displayed.page == 1 || loc.start.displayed.page == loc.start.displayed.total) {
+          if (loc.start.displayed.page != loc.start.displayed.total - 1) {
+        loc.start.displayed.page -= 1
+        console.log("ugly workaround activated, loc now ", loc)
+      }
+      }
+  
       this.rendered = true
       this.timeline.unshift({
         location: loc,
@@ -504,6 +485,7 @@ export class BookTab extends BaseTab {
     })
     this.rendition.on('rendered', (section: ISection, view: any) => {
       console.log('rendered', [section, view])
+      this.honest = true
       this.section = ref(section)
       this.iframe = ref(view.window as Window)
     })
