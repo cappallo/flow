@@ -37,7 +37,7 @@ function simplifyCfi(cfi: string) {
 
   // Reconstruct the string, omitting parts beyond the largest integer value
   // but keeping at least the first two parts
-  const minIndexToKeep = Math.max(largestIndex, 3);
+  const minIndexToKeep = Math.max(largestIndex, 4);
   const filteredParts = parts.slice(0, minIndexToKeep + 1);
   if (parts.length > 0 && parts[parts.length - 1] !== undefined) {
     // ensure parts[parts.length - 1] is a string
