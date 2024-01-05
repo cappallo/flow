@@ -24,6 +24,7 @@ import {
   useBackground,
   useColorScheme,
   useDisablePinchZooming,
+  useForceRender,
   useMobile,
   useSync,
   useTranslation,
@@ -466,9 +467,18 @@ useEffect(() => {
 
   const applyCustomStyle = useCallback(() => {
     const contents = rendition?.getContents()[0]
+    console.log("applying custom style, contents = ", contents)
+    if (contents === undefined) { return }
+    contents.addStylesheet('https://fonts.googleapis.com/css?family=Literata|Lusitana|Merriweather|Bitter|Roboto|Open+Sans|Lato=swap');
     updateCustomStyle(contents, typography)
   }, [rendition, typography])
 
+  useEffect(() => {
+    console.log("updating font family to ", typography.fontFamily)
+    if (typography?.fontFamily) {
+    rendition?.themes.font(typography.fontFamily)
+    }
+  }, [typography.fontFamily])
   useEffect(() => {
     tab.onRender = applyCustomStyle
   }, [applyCustomStyle, tab])

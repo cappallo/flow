@@ -4,7 +4,7 @@ import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { proxy, ref, snapshot, subscribe, useSnapshot } from 'valtio'
 
-import type { Rendition, Location, Book } from '@flow/epubjs'
+import type { Rendition, Location, Book, Contents } from '@flow/epubjs'
 import Navigation, { NavItem } from '@flow/epubjs/types/navigation'
 import Section from '@flow/epubjs/types/section'
 
