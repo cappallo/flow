@@ -69,7 +69,8 @@ export const TextSelectionMenu: React.FC<TextSelectionMenuProps> = ({
 
   const handleTranslateClick = async (highlightedText: string) => {
     const targetLanguage = 'en-US'
-    const sourceLanguage = (locale === 'eo' ? 'eo' : '')
+    // const sourceLanguage = (locale === 'eo' ? 'eo' : '')
+    const sourceLanguage = 'eo'
     
     const apiUrl = `/cgi-bin/fluduku.py?keyword=bone&text=${encodeURIComponent(
       highlightedText,

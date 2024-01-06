@@ -469,7 +469,7 @@ useEffect(() => {
     const contents = rendition?.getContents()[0]
     console.log("applying custom style, contents = ", contents)
     if (contents === undefined) { return }
-    contents.addStylesheet('https://fonts.googleapis.com/css?family=Literata|Lusitana|Merriweather|Bitter|Roboto|Open+Sans|Lato=swap');
+    contents.addStylesheet('https://fonts.googleapis.com/css?family=Merriweather|Literata|Bitter|Lora|Crimson+Text|Noticia+Text|Marcellus|Martel|Lato=swap');
     updateCustomStyle(contents, typography)
   }, [rendition, typography])
 
