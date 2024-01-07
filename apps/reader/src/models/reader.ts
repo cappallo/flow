@@ -179,14 +179,33 @@ export class BookTab extends BaseTab {
 
   async syncInfo(changes: Partial<BookRecord>) {
     console.log("called syncinfo with changes: ", changes)
+
+        // Create the data object to be sent in the POST request
+        const postData = {
+          keyword: 'bone',
+          bookid: this.book.id,
+          name: this.book.name,
+          changes: JSON.stringify(changes) // Convert changes object to json string
+      };
+
     // convert changes object to json string:
-    const json = JSON.stringify(changes)
+    // const json = JSON.stringify(changes)
     // send changes to remote URL with GET protocol
-    const url = `/cgi-bin/updateflow.py?keyword=bone&bookid=${encodeURIComponent(this.book.id)}&name=${encodeURIComponent(this.book.name)}&changes=${encodeURIComponent(json)}`
+    // const url = `/cgi-bin/updateflow.py?keyword=bone&bookid=${encodeURIComponent(this.book.id)}&name=${encodeURIComponent(this.book.name)}&changes=${encodeURIComponent(json)}`
 
     try {
       console.time('FetchTime')
-      const response = await fetch(url)
+
+              // Send changes to remote URL with POST protocol
+              const response = await fetch('/cgi-bin/updateflow.py', {
+                method: 'POST', // Specify the method as POST
+                headers: {
+                    'Content-Type': 'application/json' // Set the content type header
+                },
+                body: JSON.stringify(postData) // Convert postData to JSON string
+            });
+
+      // const response = await fetch(url)
       console.timeEnd('FetchTime')
       const data = await response.json()
       const remoteChanges = data.changes as Partial<BookRecord>
