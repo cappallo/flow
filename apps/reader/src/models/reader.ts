@@ -117,6 +117,7 @@ export class BookTab extends BaseTab {
   activeResultID?: string
   rendered = false
   honest = true
+  isTranslated = false
 
   get container() {
     return this?.rendition?.manager?.container as HTMLDivElement | undefined
@@ -424,11 +425,11 @@ export class BookTab extends BaseTab {
     )
     console.log(this.rendition)
     let loc = this.location?.start.cfi ?? this.book.cfi ?? undefined
-    if (loc !== undefined) {
-      console.log("read CFI as: ", loc)
-      loc = simplifyCfi(loc)
-      console.log("simplified CFI to: ", loc)
-    }
+    // if (loc !== undefined) {
+    //   console.log("read CFI as: ", loc)
+    //   loc = simplifyCfi(loc)
+    //   console.log("simplified CFI to: ", loc)
+    // }
     this.rendition.display(loc)
     this.rendition.themes.default(defaultStyle)
     this.rendition.hooks.render.register((view: any) => {

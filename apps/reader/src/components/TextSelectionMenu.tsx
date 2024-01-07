@@ -171,7 +171,7 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
     : _lineHeight * (zoom ?? 1)
 
   const [translation, setTranslation] = useState('')
-  const [showTranslation, setShowTranslation] = useState(true)
+  const [showTranslation, setShowTranslation] = useState(tab.isTranslated)
   const [isTranslating, setIsTranslating] = useState(false)
   const isTranslatingRef = useRef(false)
   const pendingTranslationRef = useRef<string | null>(null)
@@ -197,7 +197,7 @@ const TextSelectionMenuRenderer: React.FC<TextSelectionMenuRendererProps> = ({
     if (text) {
       if (isTranslatingRef.current) {
         pendingTranslationRef.current = text 
-      } else {
+      } else if (tab.isTranslated) {
         processTranslation(text)
       }
     }

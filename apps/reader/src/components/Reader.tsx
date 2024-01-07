@@ -363,14 +363,14 @@ function BookPane({ tab, onMouseDown }: BookPaneProps) {
       indexNum = Number(index);
     }
   
-    const isTranslated = pTag.classList.contains('is-translated');
+    const isPTranslated = pTag.classList.contains('is-translated');
     const temp = pTag.innerHTML
     if (!pTag.classList.contains('notranslate')) {
       pTag.classList.add('notranslate');
     }
   
     // Toggle the content and the class
-    if (isTranslated) {
+    if (isPTranslated) {
       pTag.innerHTML = originalParagraphs.current[indexNum] ?? pTag.innerHTML
       pTag.classList.remove('is-translated');
       console.log("set paragraph to translated version")
@@ -393,24 +393,28 @@ useEffect(() => {
     p.setAttribute('data-index', index.toString());
   });
 
-    console.log("made paragraphs as originalParagraphs:", originalParagraphs)
+  console.log("made paragraphs as originalParagraphs: ", originalParagraphs)
+  // TODO: check original and new paragraphs with Translate to detect language, and save language code somewhere
   const observer = new MutationObserver((mutations) => {
-    console.log(`Mutation observed in body`);
+    console.log(`Mutation observed in body, assuming new translation`);
+
+    if (tab.isTranslated) {
+      console.log("appears to have already been translated, why is this getting called again? toggling the translation?")
+    } else {
+      tab.isTranslated = true;
+      console.log("setting tab.isTranslated to true")
+    }
+  
     mutations.forEach((mutation) => {
       // if mutation is a subtree, then see if it's a paragraph descendent
       console.log("mutation found ", mutation)
       if (mutation.type === 'childList') {
         const target = mutation.target as HTMLElement
-        // if (mutation.removedNodes.length > 0 && target.nodeName === 'P') {
-        //   cleanUpParagraph(target)
-        // }
         if (mutation.removedNodes.length > 0 && target.nodeName === 'P' && !target.classList.contains('notranslate')) {
-          // console.log("adding notranslate to paragraph: ", target)
           target.classList.add('notranslate');
         }
         mutation.addedNodes.forEach((node) => {
           // Check if the added node is an element node
-          // console.log("node added found ", node)
           if (node.nodeType === Node.ELEMENT_NODE) {
             if (node.nodeName === 'FONT') {
               let fragment = document.createDocumentFragment();
@@ -420,7 +424,6 @@ useEffect(() => {
               }
               // Replace the font node with the fragment
               node.parentNode?.replaceChild(fragment, node);
-              // console.log("removed added font node ", node, " with ", fragment)
             }
           }
         });
@@ -577,7 +580,7 @@ useEffect(() => {
     }
   
     // Check if we found a <p> element
-    if (targetElement && targetElement.tagName === 'P') {
+    if (tab.isTranslated && targetElement && targetElement.tagName === 'P') {
       toggleParagraphContent(targetElement);
       return;
     }
