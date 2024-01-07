@@ -217,6 +217,7 @@ export class BookTab extends BaseTab {
     text: string,
     notes?: string,
   ) {
+    console.log("putAnnotation", cfi, text, type)
     const spine = this.section
     if (!spine?.navitem) return
 

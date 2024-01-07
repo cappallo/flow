@@ -113,6 +113,7 @@ const Annotation: React.FC<AnnotationProps> = ({ tab, annotation }) => {
   useEffect(() => {
     // Check if rendition and annotation CFI are valid
     if (!rendition || !annotation.cfi) {
+      console.log("invalid rendition or annotation cfi: ", annotation)
       return;
     }
 
@@ -141,8 +142,10 @@ const Annotation: React.FC<AnnotationProps> = ({ tab, annotation }) => {
 
     return () => {
       try {
+        console.log("removing annotation ", annotation)
         rendition.annotations.remove(annotation.cfi, annotation.type);
       } catch (error) {
+        console.log("error cleaning up: ", error)
         // Error during cleanup is also ignored
       }
     };
