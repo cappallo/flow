@@ -457,11 +457,11 @@ export class BookTab extends BaseTab {
     )
     console.log(this.rendition)
     let loc = this.location?.start.cfi ?? this.book.cfi ?? undefined
-    // if (loc !== undefined) {
-    //   console.log("read CFI as: ", loc)
-    //   loc = simplifyCfi(loc)
-    //   console.log("simplified CFI to: ", loc)
-    // }
+    if (loc !== undefined) {
+      console.log("read CFI as: ", loc)
+      loc = simplifyCfi(loc)
+      console.log("simplified CFI to: ", loc)
+    }
     this.rendition.display(loc)
     this.rendition.themes.default(defaultStyle)
     this.rendition.hooks.render.register((view: any) => {

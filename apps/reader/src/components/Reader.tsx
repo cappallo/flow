@@ -433,6 +433,7 @@ useEffect(() => {
 
   if (iframe) {
     console.log("trying with iframe ", iframe)
+    iframe.document.body.classList.add('no-context-menu')
     observer.observe(iframe.document.body, { childList: true, subtree: true });
   }
   return () => {

@@ -41,7 +41,7 @@ export function Tab({
       {...props}
     >
       {focused && (
-        <div className={clsx('absolute inset-x-0 top-0 h-px', activeClass)} />
+        <div className={clsx('absolute inset-x-0 top-0 h-px no-context-menu', activeClass)} />
       )}
       <Icon size={16} className="text-outline" />
       <span className="max-w-[200px] truncate">{children}</span>

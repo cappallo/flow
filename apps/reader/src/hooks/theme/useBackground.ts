@@ -50,7 +50,7 @@ export function useBackground() {
     const { surface, primary } = rawTheme.schemes.light
 
     const color = dark
-      ? '#24292e'
+      ? 'black'
       : level < 0
       ? '#fff'
       : compositeColors(surface, primary, surfaceMap[level]!)

@@ -18,7 +18,7 @@ export const defaultStyle = {
     'text-decoration': 'none !important',
   },
   '::selection': {
-    'background-color': 'rgba(3, 102, 214, 0.2)',
+    'background-color': 'rgba(3, 102, 214, 0.4)',
   },
 }
 

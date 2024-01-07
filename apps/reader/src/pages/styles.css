@@ -134,5 +134,5 @@ p {
 }
 
 .no-context-menu {
-  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-touch-callout: none !important; /* iOS Safari */
 }
