@@ -12,6 +12,7 @@ import { AnnotationColor, AnnotationType } from '../annotation'
 import { BookRecord, db } from '../db'
 import { fileToEpub } from '../file'
 import { defaultStyle } from '../styles'
+import { decode } from 'he'
 
 import { dfs, find, INode } from './tree'
 
@@ -176,6 +177,34 @@ export class BookTab extends BaseTab {
     }
   }
 
+  async syncInfo(changes: Partial<BookRecord>) {
+    console.log("called syncinfo with changes: ", changes)
+    // convert changes object to json string:
+    const json = JSON.stringify(changes)
+    // send changes to remote URL with GET protocol
+    const url = `/cgi-bin/updateflow.py?keyword=bone&bookid=${encodeURIComponent(this.book.id)}&name=${encodeURIComponent(this.book.name)}&changes=${encodeURIComponent(json)}`
+
+    try {
+      console.time('FetchTime')
+      const response = await fetch(url)
+      console.timeEnd('FetchTime')
+      const data = await response.json()
+      const remoteChanges = data.changes as Partial<BookRecord>
+      const remoteBookID = data.bookid as string
+      const remoteName = data.name as string
+      console.log("update changes to book and changes: ", this.book.id, this.book.name, changes, data, remoteChanges, remoteBookID, remoteName)
+
+      // if (remoteBookID !== this.book.id && remoteName === this.book.name) {
+        this.book = {...this.book, ...(remoteChanges || {})}
+        if (db && db !== undefined && this.book?.id) {
+          db.books.update(this.book.id, remoteChanges)
+        }
+      // }
+    } catch (error) {
+      console.error('Unexpected error:', error, db, this.book)
+      throw error // Propagate the error
+    }
+  }
 
   updateBook(changes: Partial<BookRecord>) {
     changes = {
@@ -183,8 +212,10 @@ export class BookTab extends BaseTab {
       updatedAt: Date.now(),
     }
     // don't wait promise resolve to make valtio batch updates
-    this.book = { ...this.book, ...changes }
-    db?.books.update(this.book.id, changes)
+    // this.book = { ...this.book, ...changes }
+    // db?.books.update(this.book.id, changes)
+
+    this.syncInfo(changes)
   }
 
   annotationRange?: Range
