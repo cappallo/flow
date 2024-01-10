@@ -76,7 +76,7 @@ const Definition: React.FC<DefinitionProps> = ({ tab, definition }) => {
           undefined,
           {
             // tailwind gray-600
-            fill: 'rgba(75, 85, 99, 0.15)',
+            fill: 'rgba(75, 85, 99, 0.3)',
             'fill-opacity': 'unset',
           },
         )

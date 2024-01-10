@@ -25,6 +25,11 @@ function simplifyCfi(cfi: string) {
   // Split the string by slashes
   const parts = cfi.split('/');
 
+  console.log('simplifycfi: ', cfi)
+  // replace last part with '1:0'
+  parts[parts.length - 1] = '1:0)'
+  return parts.join('/')
+  
   // Find the largest integer value and its index
   let largestValue = -Infinity;
   let largestIndex = -1;
