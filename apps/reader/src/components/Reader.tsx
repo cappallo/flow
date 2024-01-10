@@ -473,16 +473,16 @@ useEffect(() => {
     const contents = rendition?.getContents()[0]
     console.log("applying custom style, contents = ", contents)
     if (contents === undefined) { return }
-    contents.addStylesheet('https://fonts.googleapis.com/css?family=Merriweather|Literata|Bitter|Lora|Crimson+Text|Noticia+Text|Marcellus|Martel|Lato=swap');
+    contents.addStylesheet('https://fonts.googleapis.com/css?family=Merriweather|Literata|Bitter|Lora|Crimson+Text|Noticia+Text|Marcellus|Martel|Quicksand|Lato&display=swap');
     updateCustomStyle(contents, typography)
   }, [rendition, typography])
 
-  useEffect(() => {
-    console.log("updating font family to ", typography.fontFamily)
-    if (typography?.fontFamily) {
-    rendition?.themes.font(typography.fontFamily)
-    }
-  }, [typography.fontFamily])
+  // useEffect(() => {
+  //   console.log("updating font family to ", typography.fontFamily)
+  //   if (typography?.fontFamily) {
+  //   rendition?.themes.font(typography.fontFamily)
+  //   }
+  // }, [typography.fontFamily])
   useEffect(() => {
     tab.onRender = applyCustomStyle
   }, [applyCustomStyle, tab])

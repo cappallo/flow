@@ -20,7 +20,7 @@ enum TypographyScope {
   Global,
 }
 
-const typefaces = ['default', 'Merriweather', 'Literata', 'Bitter', 'Lora', 'Crimson Text', 'Noticia Text', 'Marcellus', 'Martel', 'Lato', 'serif', 'sans-serif' /* other fonts you've included */];
+const typefaces = ['default', 'Merriweather', 'Literata', 'Bitter', 'Lora', 'Crimson Text', 'Noticia Text', 'Marcellus', 'Martel', 'Quicksand', 'Lato', 'serif', 'sans-serif' /* other fonts you've included */];
 
 export const TypographyView: React.FC<PaneViewProps> = (props) => {
   const { focusedBookTab } = useReaderSnapshot()
@@ -89,16 +89,17 @@ export const TypographyView: React.FC<PaneViewProps> = (props) => {
             setTypography('spread', e.target.value as RenditionSpread)
           }}
         >
-          <option value={RenditionSpread.None}>
+          <option value={RenditionSpread.Auto}>
             {t('page_view.single_page')}
           </option>
-          <option value={RenditionSpread.Auto}>
+          <option value={RenditionSpread.None}>
             {t('page_view.double_page')}
           </option>
         </Select>
         <Select
           name={t('font_family')}
           value={fontFamily}
+          defaultValue={'default'}
           onChange={(e) => {
             setTypography('fontFamily', e.target.value)
           }}
