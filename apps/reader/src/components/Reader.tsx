@@ -477,12 +477,6 @@ useEffect(() => {
     updateCustomStyle(contents, typography)
   }, [rendition, typography])
 
-  // useEffect(() => {
-  //   console.log("updating font family to ", typography.fontFamily)
-  //   if (typography?.fontFamily) {
-  //   rendition?.themes.font(typography.fontFamily)
-  //   }
-  // }, [typography.fontFamily])
   useEffect(() => {
     tab.onRender = applyCustomStyle
   }, [applyCustomStyle, tab])
