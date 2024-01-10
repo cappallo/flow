@@ -393,21 +393,18 @@ useEffect(() => {
     p.setAttribute('data-index', index.toString());
   });
 
-  console.log("made paragraphs as originalParagraphs: ", originalParagraphs)
+  // console.log("made paragraphs as originalParagraphs: ", originalParagraphs)
   // TODO: check original and new paragraphs with Translate to detect language, and save language code somewhere
   const observer = new MutationObserver((mutations) => {
-    console.log(`Mutation observed in body, assuming new translation`);
-
     if (tab.isTranslated) {
       console.log("appears to have already been translated, why is this getting called again? toggling the translation?")
     } else {
+      console.log(`Mutation observed in body, looks like fresh new translation`);
       tab.isTranslated = true;
-      console.log("setting tab.isTranslated to true")
     }
   
     mutations.forEach((mutation) => {
       // if mutation is a subtree, then see if it's a paragraph descendent
-      console.log("mutation found ", mutation)
       if (mutation.type === 'childList') {
         const target = mutation.target as HTMLElement
         if (mutation.removedNodes.length > 0 && target.nodeName === 'P' && !target.classList.contains('notranslate')) {
@@ -432,12 +429,10 @@ useEffect(() => {
   });
 
   if (iframe) {
-    console.log("trying with iframe ", iframe)
     iframe.document.body.classList.add('no-context-menu')
     observer.observe(iframe.document.body, { childList: true, subtree: true });
   }
   return () => {
-    console.log("unmounting body observer")
       observer.disconnect()
   };
   }, [tab.section]);
@@ -445,6 +440,7 @@ useEffect(() => {
 
 
   useEffect(() => {
+  try{
     const el = ref.current
     if (!el) return
 
@@ -460,7 +456,15 @@ useEffect(() => {
     observer.observe(el)
 
     return () => {
-      observer.disconnect()
+      try{
+        observer.disconnect()
+      } catch (error) {
+        console.log("error disconnecting resize observer: ", error)
+      }
+    }
+  }
+    catch (error) {
+      console.log("error setting up resize observer: ", error)
     }
   }, [])
 

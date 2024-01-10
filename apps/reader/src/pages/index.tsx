@@ -100,10 +100,10 @@ const Library: React.FC = () => {
   const covers = useLiveQuery(() => db?.covers.toArray() ?? [])
   const t = useTranslation('home')
 
-  const { data: remoteBooks, mutate: mutateRemoteBooks } = useRemoteBooks()
-  const { data: remoteFiles, mutate: mutateRemoteFiles } = useRemoteFiles()
-  const previousRemoteBooks = usePrevious(remoteBooks)
-  const previousRemoteFiles = usePrevious(remoteFiles)
+  // const { data: remoteBooks, mutate: mutateRemoteBooks } = useRemoteBooks()
+  // const { data: remoteFiles, mutate: mutateRemoteFiles } = useRemoteFiles()
+  // const previousRemoteBooks = usePrevious(remoteBooks)
+  // const previousRemoteFiles = usePrevious(remoteFiles)
 
   const [select, toggleSelect] = useBoolean(false)
   const [selectedBookIds, { add, has, toggle, reset }] = useSet<string>()
@@ -113,52 +113,52 @@ const Library: React.FC = () => {
 
   const { groups } = useReaderSnapshot()
 
-  useEffect(() => {
-    if (previousRemoteFiles && remoteFiles) {
-      // to remove effect dependency `books`
-      db?.books.toArray().then((books) => {
-        if (books.length === 0) return
+  // useEffect(() => {
+  //   if (previousRemoteFiles && remoteFiles) {
+  //     // to remove effect dependency `books`
+  //     db?.books.toArray().then((books) => {
+  //       if (books.length === 0) return
 
-        const newRemoteBooks = remoteFiles.map((f) =>
-          books.find((b) => b.name === f.name),
-        ) as BookRecord[]
+  //       const newRemoteBooks = remoteFiles.map((f) =>
+  //         books.find((b) => b.name === f.name),
+  //       ) as BookRecord[]
 
-        uploadData(newRemoteBooks)
-        mutateRemoteBooks(newRemoteBooks, { revalidate: false })
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mutateRemoteBooks, remoteFiles])
+  //       uploadData(newRemoteBooks)
+  //       mutateRemoteBooks(newRemoteBooks, { revalidate: false })
+  //     })
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [mutateRemoteBooks, remoteFiles])
 
-  useEffect(() => {
-    if (!previousRemoteBooks && remoteBooks) {
-      db?.books.bulkPut(remoteBooks).then(() => setReadyToSync(true))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remoteBooks])
+  // useEffect(() => {
+  //   if (!previousRemoteBooks && remoteBooks) {
+  //     db?.books.bulkPut(remoteBooks).then(() => setReadyToSync(true))
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [remoteBooks])
 
-  useEffect(() => {
-    if (!remoteFiles || !readyToSync) return
+  // useEffect(() => {
+  //   if (!remoteFiles || !readyToSync) return
 
-    db?.books.toArray().then(async (books) => {
-      for (const remoteFile of remoteFiles) {
-        const book = books.find((b) => b.name === remoteFile.name)
-        if (!book) continue
+  //   db?.books.toArray().then(async (books) => {
+  //     for (const remoteFile of remoteFiles) {
+  //       const book = books.find((b) => b.name === remoteFile.name)
+  //       if (!book) continue
 
-        const file = await db?.files.get(book.id)
-        if (file) continue
+  //       const file = await db?.files.get(book.id)
+  //       if (file) continue
 
-        setLoading(book.id)
-        await dbx
-          .filesDownload({ path: `/files/${remoteFile.name}` })
-          .then((d) => {
-            const blob: Blob = (d.result as any).fileBlob
-            return addFile(book.id, new File([blob], book.name))
-          })
-        setLoading(undefined)
-      }
-    })
-  }, [readyToSync, remoteFiles])
+  //       setLoading(book.id)
+  //       await dbx
+  //         .filesDownload({ path: `/files/${remoteFile.name}` })
+  //         .then((d) => {
+  //           const blob: Blob = (d.result as any).fileBlob
+  //           return addFile(book.id, new File([blob], book.name))
+  //         })
+  //       setLoading(undefined)
+  //     }
+  //   })
+  // }, [readyToSync, remoteFiles])
 
   useEffect(() => {
     if (!select) reset()
@@ -252,10 +252,10 @@ const Library: React.FC = () => {
                     toggleSelect()
 
                     for (const book of selectedBooks) {
-                      const remoteFile = remoteFiles?.find(
-                        (f) => f.name === book.name,
-                      )
-                      if (remoteFile) continue
+                      // const remoteFile = remoteFiles?.find(
+                      //   (f) => f.name === book.name,
+                      // )
+                      // if (remoteFile) continue
 
                       const file = await db?.files.get(book.id)
                       if (!file) continue
@@ -267,7 +267,7 @@ const Library: React.FC = () => {
                       })
                       setLoading(undefined)
 
-                      mutateRemoteFiles()
+                      // mutateRemoteFiles()
                     }
                   }}
                 >
@@ -283,19 +283,19 @@ const Library: React.FC = () => {
                     db?.files.bulkDelete(bookIds)
 
                     // folder data is not updated after `filesDeleteBatch`
-                    mutateRemoteFiles(
-                      async (data) => {
-                        await dbx.filesDeleteBatch({
-                          entries: selectedBooks.map((b) => ({
-                            path: `/files/${b.name}`,
-                          })),
-                        })
-                        return data?.filter(
-                          (f) => !selectedBooks.find((b) => b.name === f.name),
-                        )
-                      },
-                      { revalidate: false },
-                    )
+                    // mutateRemoteFiles(
+                    //   async (data) => {
+                    //     await dbx.filesDeleteBatch({
+                    //       entries: selectedBooks.map((b) => ({
+                    //         path: `/files/${b.name}`,
+                    //       })),
+                    //     })
+                    //     return data?.filter(
+                    //       (f) => !selectedBooks.find((b) => b.name === f.name),
+                    //     )
+                    //   },
+                    //   { revalidate: false },
+                    // )
                   }}
                 >
                   {t('delete')}
@@ -402,7 +402,7 @@ const Book: React.FC<BookProps> = ({
         />
         {book.percentage !== undefined && (
           <div className="typescale-body-large absolute right-0 bg-gray-500/60 px-2 text-gray-100">
-            {(book.percentage * 100).toFixed()}%
+            {(book.percentage * 100).toFixed(1)}%
           </div>
         )}
         <img
