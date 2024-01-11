@@ -28,7 +28,7 @@ const camelToSnake = (str: string) =>
 function mapToCss(o: CSSProperties) {
   return keys(o)
     .filter((k) => o[k] !== undefined)
-    .map((k) => `${camelToSnake(k)}: ${o[k]};`)
+    .map((k) => `${camelToSnake(k)}: ${o[k]} !important;`)
     .join('\n')
 }
 

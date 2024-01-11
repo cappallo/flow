@@ -428,6 +428,7 @@ useEffect(() => {
     });
   });
 
+  // add iframe stuff here
   if (iframe) {
     iframe.document.body.classList.add('no-context-menu')
     observer.observe(iframe.document.body, { childList: true, subtree: true });
@@ -523,9 +524,9 @@ useEffect(() => {
     setDragEvent(e)
   })
 
-  // useEventListener(iframe, 'contextmenu', (e) => {
-  //   e.preventDefault();
-  // });
+  useEventListener(iframe, 'contextmenu', (e) => {
+    e.preventDefault();
+  });
   
   // useEventListener(iframe, 'mousedown', onMouseDown)
 
@@ -606,6 +607,38 @@ useEffect(() => {
 
     if (!iframe) return
 
+    // useEventListener(iframe, 'touchend', (e: TouchEvent) => {
+    //   const selection = iframe.getSelection()
+    //   if (hasSelection(selection)) return
+
+    //   const x1 = e.changedTouches[0]?.clientX ?? 0
+    //   const y1 = e.changedTouches[0]?.clientY ?? 0
+    //   const t1 = Date.now()
+
+    //   const deltaX = x1 - x0
+    //   const deltaY = y1 - y0
+    //   const deltaT = t1 - t0
+
+    //   const absX = Math.abs(deltaX)
+    //   const absY = Math.abs(deltaY)
+
+    //   if (absX < 20) return
+
+    //   if (absY / absX > 2) {
+    //     if (deltaT > 100 || absX < 40) {
+    //       return
+    //     }
+    //   }
+
+    //   if (deltaX > 0) {
+    //     tab.prev()
+    //   }
+
+    //   if (deltaX < 0) {
+    //     tab.next()
+    //   }
+    // })
+
     // When selecting text with long tap, `touchend` is not fired,
     // so instead of use `addEventlistener`, we should use `on*`
     // to remove the previous listener.
@@ -643,7 +676,7 @@ useEffect(() => {
     }
   })
 
-  useDisablePinchZooming(iframe)
+  // useDisablePinchZooming(iframe)
 
 
   return (
