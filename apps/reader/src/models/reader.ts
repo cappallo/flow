@@ -12,7 +12,6 @@ import { AnnotationColor, AnnotationType } from '../annotation'
 import { BookRecord, db } from '../db'
 import { fileToEpub } from '../file'
 import { defaultStyle } from '../styles'
-import { decode } from 'he'
 
 import { dfs, find, INode } from './tree'
 
@@ -217,16 +216,39 @@ export class BookTab extends BaseTab {
       const remoteBookID = data.bookid as string
       const remoteName = data.name as string
       console.log("update changes to book and changes: ", this.book.id, this.book.name, changes, data, remoteChanges, remoteBookID, remoteName)
-
-      // if (remoteBookID !== this.book.id && remoteName === this.book.name) {
-        this.book = {...this.book, ...(remoteChanges || {})}
-        if (db && db !== undefined && this.book?.id) {
-          db.books.update(this.book.id, remoteChanges)
-        }
+  
+      // Merge annotations if present in both changes and remoteChanges
+      // if (remoteChanges.annotations && remoteChanges.annotations?.length > 0) {
+      //   const mergedAnnotations = [...(this.book.annotations || []), ...(remoteChanges.annotations || [])]
+      //     .reduce<any[]>((acc, annotation) => {
+      //       const existing = acc.find(a => a.id === annotation.id);
+      //       if (!existing || existing.updatedAt < annotation.updatedAt) {
+      //         acc = acc.filter(a => a.id !== annotation.id); // Remove existing
+      //         acc.push(annotation); // Add the newer or non-existing annotation
+      //       }
+      //       return acc;
+      //     }, []);
+  
+      //   changes = {...changes, ...remoteChanges, annotations: mergedAnnotations }
       // }
+
+      // console.log("remoteChanges now ", remoteChanges)
+      // if (remoteChanges.annotations && remoteChanges.annotations?.length > this.book.annotations.length) {
+      //   this.book.annotations = {...this.book.annotations,...remoteChanges.annotations }
+      // }
+      // this.book = {...this.book, ...(changes || {})}
+      // if (db && db !== undefined && this.book?.id) {
+      //   db.books.update(this.book.id, changes)
+      // }
+      this.book = {...this.book, ...(remoteChanges || {})}
+      if (db && db !== undefined && this.book?.id) {
+        db.books.update(this.book.id, remoteChanges)
+      }
     } catch (error) {
-      console.error('Unexpected error:', error, db, this.book)
-      throw error // Propagate the error
+      console.error('Unexpected error, trying offline update ', error, db, this.book)
+      this.book = { ...this.book, ...changes }
+      db?.books.update(this.book.id, changes)
+      // throw error // Propagate the error
     }
   }
 

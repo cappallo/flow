@@ -688,7 +688,7 @@ useEffect(() => {
         maskOpacity={0.6}
         bannerVisible={false}
       />
-      <ReaderPaneHeader tab={tab} />
+      {/* <ReaderPaneHeader tab={tab} /> */}
       <div
         ref={ref}
         className={clsx('relative flex-1', isTouchScreen || 'h-0')}
@@ -707,7 +707,7 @@ useEffect(() => {
         <TextSelectionMenu tab={tab} />
         <Annotations tab={tab} />
       </div>
-      <ReaderPaneFooter tab={tab} />
+      {/* <ReaderPaneFooter tab={tab} /> */}
     </div>
   )
 }
@@ -716,7 +716,7 @@ interface ReaderPaneHeaderProps {
   tab: BookTab
 }
 const ReaderPaneHeader: React.FC<ReaderPaneHeaderProps> = ({ tab }) => {
-  const { location } = useSnapshot(tab)
+  const { location, book } = useSnapshot(tab)
   const navPath = tab.getNavPath()
 
   useEffect(() => {
@@ -736,11 +736,12 @@ const ReaderPaneHeader: React.FC<ReaderPaneHeaderProps> = ({ tab }) => {
           </button>
         ))}
       </div>
-      {location && (
+      {/* {location && (
         <div className="shrink-0 notranslate">
           {location.start.displayed.page + 1} / {location.start.displayed.total}
         </div>
-      )}
+      )} */}
+      <div className="notranslate">{((book.percentage ?? 0) * 100).toFixed(1)}%</div>
     </Bar>
   )
 }
